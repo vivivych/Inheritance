@@ -1,4 +1,5 @@
 ﻿#include<iostream>
+#include<Windows.h>
 using namespace std;
 
 enum Color  //enumeration (перечисление в языке C. Представляет собой набор констант типа int. Перечисления из других типов создать невозможно (в C++)
