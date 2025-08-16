@@ -5,6 +5,8 @@ VisualStudioVersion = 17.11.35327.3
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Academy", "Academy\Academy.vcxproj", "{9F57EFB7-63D6-4BF6-BB30-E9BFCCB647D0}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AbstractGeometry", "AbstractGeometry\AbstractGeometry.vcxproj", "{A96F7C26-BBFF-43FF-866B-371BCC45133A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -21,6 +23,14 @@ Global
 		{9F57EFB7-63D6-4BF6-BB30-E9BFCCB647D0}.Release|x64.Build.0 = Release|x64
 		{9F57EFB7-63D6-4BF6-BB30-E9BFCCB647D0}.Release|x86.ActiveCfg = Release|Win32
 		{9F57EFB7-63D6-4BF6-BB30-E9BFCCB647D0}.Release|x86.Build.0 = Release|Win32
+		{A96F7C26-BBFF-43FF-866B-371BCC45133A}.Debug|x64.ActiveCfg = Debug|x64
+		{A96F7C26-BBFF-43FF-866B-371BCC45133A}.Debug|x64.Build.0 = Debug|x64
+		{A96F7C26-BBFF-43FF-866B-371BCC45133A}.Debug|x86.ActiveCfg = Debug|Win32
+		{A96F7C26-BBFF-43FF-866B-371BCC45133A}.Debug|x86.Build.0 = Debug|Win32
+		{A96F7C26-BBFF-43FF-866B-371BCC45133A}.Release|x64.ActiveCfg = Release|x64
+		{A96F7C26-BBFF-43FF-866B-371BCC45133A}.Release|x64.Build.0 = Release|x64
+		{A96F7C26-BBFF-43FF-866B-371BCC45133A}.Release|x86.ActiveCfg = Release|Win32
+		{A96F7C26-BBFF-43FF-866B-371BCC45133A}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
