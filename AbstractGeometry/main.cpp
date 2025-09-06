@@ -32,7 +32,7 @@ namespace Geometry
 		static const int MIN_START_X = 100;
 		static const int MIN_START_Y = 100;
 		static const int MAX_START_X = 800;
-		static const int MAX_START_Y = 600;
+		static const int MAX_START_Y = 800;
 		static const int MIN_LINE_WIDTH = 1;
 		static const int MAX_LINE_WIDTH = 32;
 		static const int MIN_SIZE = 32;
@@ -275,13 +275,13 @@ namespace Geometry
 void main()
 {
 	setlocale(LC_ALL, "");
-	Geometry::Square square(50, 100, 500, 5, Geometry::Color::Green);
+	Geometry::Square square(50, 200, 515, 5, Geometry::Color::Green);
 	square.info();
-	Geometry::Rectangle rectangle(70, 20, 300, 500, 7, Geometry::Color::Red);
+	Geometry::Rectangle rectangle(70, 20, 355, 630, 7, Geometry::Color::Red);
 	rectangle.info();
 	Geometry::Circle circle(75, 500, 500, 3, Geometry::Color::Yellow);
 	circle.info();
-	Geometry::EquilateralTriangle triangle(80, 500, 350, 1, Geometry::Color::Violet);
+	Geometry::EquilateralTriangle triangle(80, 350, 515, 1, Geometry::Color::Violet);
 	triangle.info();
 
 	while (true)
