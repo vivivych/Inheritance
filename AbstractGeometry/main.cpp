@@ -17,31 +17,18 @@ namespace Geometry
 #define SHAPE_GIVE_PARAMETERS  start_x,  start_y,  line_width,  color
 #define PI 3.14159265358979323846
 
-	class Point
-	{
-		int x;
-		int y;
-	public:
-		void set_x(int x)
-		{
-			this->x = x;
-		}
-		void set_y(int y)
-		{
-			this->y = y;
-		}
-		double get_x() const
-		{
-			return x;
-		}
-		double get_y() const
-		{
-			return y;
-		}
-
-	};
 	class Shape
 	{
+	
+	protected:
+		int start_x;
+		int start_y;
+		int line_width;
+		Color color; 
+		HDC hdc;
+		HPEN hPen;
+		HBRUSH hBrush;
+	public:
 		static const int MIN_START_X = 100;
 		static const int MIN_START_Y = 100;
 		static const int MAX_START_X = 800;
@@ -50,12 +37,7 @@ namespace Geometry
 		static const int MAX_LINE_WIDTH = 32;
 		static const int MIN_SIZE = 32;
 		static const int MAX_SIZE = 800;
-	protected:
-		int start_x;
-		int start_y;
-		int line_width;
-		Color color; 
-	public:
+
 		void set_start_x(int start_x)
 		{
 			this->start_x =
@@ -81,6 +63,12 @@ namespace Geometry
 		{
 			this->color = color;
 		}
+		int filter_size(int size) const
+		{
+			return size < MIN_SIZE ? MIN_SIZE :
+				size > MAX_SIZE ? MAX_SIZE :
+				size;
+		}
 		double get_start_x() const
 		{
 			return start_x;
@@ -97,15 +85,30 @@ namespace Geometry
 		{
 			return color;
 		}
-		virtual double get_area()const = 0;
-		virtual double get_perimeter() const = 0;
-		virtual void draw() const = 0;
+
 		Shape(SHAPE_TAKE_PARAMETERS) : color(color)
+
 		{
+			hdc = GetDC(GetDesktopWindow());
 			set_start_x(start_x);
 			set_start_y(start_y);
 			set_line_width(line_width);
+
+			hPen = CreatePen(PS_SOLID, line_width, color);
+			hBrush = CreateSolidBrush(color);
+			SelectObject(hdc, hPen);
+			SelectObject(hdc, hBrush);
 		}
+		~Shape()
+		{
+			DeleteObject(hBrush);
+			DeleteObject(hPen);
+			ReleaseDC(GetDesktopWindow(), hdc);
+		}
+		virtual double get_area()const = 0;
+		virtual double get_perimeter() const = 0;
+		virtual void draw() const = 0;
+	
 		virtual void info() const
 		{
 			cout << "Площадь фигуры : " << get_area() << endl;
@@ -122,11 +125,11 @@ namespace Geometry
 	public:
 		void set_side_1(double side_1)
 		{
-			this->side_1 = side_1;
+			this->side_1 = filter_size(side_1);
 		}
 		void set_side_2(double side_2)
 		{
-			this->side_2 = side_2;
+			this->side_2 = filter_size(side_2);
 		}
 		double get_side_1() const
 		{
@@ -144,36 +147,22 @@ namespace Geometry
 		{
 			return (side_1 + side_2) * 2;
 		}
-		void draw() const override
-		{
 
-			HWND hwnd = GetConsoleWindow();
-			HDC hdc = GetDC(hwnd); 
-			
-			HPEN hPen = CreatePen(PS_SOLID, line_width, color); 
-			HBRUSH hBrush = CreateSolidBrush(color);
-
-			SelectObject(hdc, hPen);
-			SelectObject(hdc, hBrush);
-
-			::Rectangle(hdc, start_x, start_y, start_x + side_1, start_y + side_2);
-
-			DeleteObject(hPen);
-			DeleteObject(hBrush);
-
-			ReleaseDC(hwnd, hdc);
-
-		}
 		Rectangle(double side_1, double side_2, SHAPE_TAKE_PARAMETERS) :Shape(SHAPE_GIVE_PARAMETERS)
 		{
 			set_side_1(side_1);
 			set_side_2(side_2);
 		}
+		void draw() const override
+		{
+			::Rectangle(hdc, start_x, start_y, start_x + side_1, start_y + side_2);
+		}
+		
 		void info() const override
 		{
 			cout << typeid(*this).name() << endl;
-			cout << "Side 1: " << get_side_1() << endl;
-			cout << "Side 2: " << get_side_2() << endl;
+			cout << "Сторона 1: " << get_side_1() << endl;
+			cout << "Сторона 2: " << get_side_2() << endl;
 			Shape::info();
 		}
 
@@ -189,7 +178,7 @@ namespace Geometry
 	public:
 		void set_radius(double radius)
 		{
-			this->radius = radius;
+			this->radius = filter_size(radius);
 		}
 		double get_radius() const
 		{
@@ -203,29 +192,15 @@ namespace Geometry
 		{
 			return 2 * PI * radius;
 		}
-		void draw() const override
-		{
-	
-			HWND hwnd = GetConsoleWindow();
-			HDC hdc = GetDC(hwnd); 
-		
-			HPEN hPen = CreatePen(PS_SOLID, line_width, color); 
-			HBRUSH hBrush = CreateSolidBrush(color);
-
-			SelectObject(hdc, hPen);
-			SelectObject(hdc, hBrush);
-
-			::Ellipse(hdc, start_x, start_y, start_x + radius, start_y + radius);
-
-			DeleteObject(hPen);
-			DeleteObject(hBrush);
-
-			ReleaseDC(hwnd, hdc);
-		}
 		Circle(double radius, SHAPE_TAKE_PARAMETERS) :Shape(SHAPE_GIVE_PARAMETERS)
 		{
 			set_radius(radius);
 		}
+		void draw() const override
+		{
+			::Ellipse(hdc, start_x, start_y, start_x + radius, start_y + radius);
+		}
+		
 		void info() const override
 		{
 			cout << typeid(*this).name() << endl;
@@ -233,121 +208,69 @@ namespace Geometry
 			Shape::info();
 		}
 	};
-	class Triangle :public Shape
+
+	class Triangle : public Shape
 	{
-		int point1_x;
-		int point1_y;
-		int point2_x;
-		int point2_y;
-		int point3_x;
-		int point3_y;
 	public:
-		void set_point1_x(int point1_x)
-		{
-			this->point1_x = point1_x;
-		}
-		void set_point1_y(int point1_y)
-		{
-			this->point1_y = point1_y;
-		}
-		void set_point2_x(int point2_x)
-		{
-			this->point2_x = point2_x;
-		}
-		void set_point2_y(int point2_y)
-		{
-			this->point2_y = point2_y;
-		}
-		void set_point3_x(int point3_x)
-		{
-			this->point3_x = point3_x;
-		}
-		void set_point3_y(int point3_y)
-		{
-			this->point3_y = point3_y;
-		}
+		Triangle(SHAPE_TAKE_PARAMETERS) : Shape(SHAPE_GIVE_PARAMETERS) {}
 
-		int get_point1_x() const
-		{
-			return point1_x;
-		}
-		int get_point1_y() const
-		{
-			return point1_y;
-		}
-		int get_point2_x() const
-		{
-			return point2_x;
-		}
-		int get_point2_y() const
-		{
-			return point2_y;
-		}
-		int get_point3_x() const
-		{
-			return point3_x;
-		}
-		int get_point3_y() const
-		{
-			return point3_y;
-		}
+		virtual double get_height() const = 0;
+	};
 
+	class EquilateralTriangle : public Triangle
+	{
+	private:
+		double side;
+
+	public:
+		
+		void set_side(double side)
+		{
+			this->side = filter_size(side);
+		}
+		double get_side() const
+		{
+			return side;
+		}
+		double get_height() const override
+		{
+			return sqrt(pow(side, 2) - pow(side, 2) / 2);
+		}
 		double get_area() const override
 		{
-		
-			double s12 = sqrt((point1_x - point2_x) * (point1_x - point2_x) + (point1_y - point2_y) * (point1_y - point2_y));
-			double s23 = sqrt((point2_x - point3_x) * (point2_x - point3_x) + (point2_y - point3_y) * (point2_y - point3_y));
-			double s13 = sqrt((point1_x - point3_x) * (point1_x - point3_x) + (point1_y - point3_y) * (point1_y - point3_y));
-
-			double hp = (s12 + s23 + s13) / 2;
-
-			return sqrt(hp * (hp - s12) * (hp - s23) * (hp - s13));
+			return side * get_height() / 2;
 		}
 		double get_perimeter() const override
 		{
-		
-			double s12 = sqrt((point1_x - point2_x) * (point1_x - point2_x) + (point1_y - point2_y) * (point1_y - point2_y));
-			double s23 = sqrt((point2_x - point3_x) * (point2_x - point3_x) + (point2_y - point3_y) * (point2_y - point3_y));
-			double s13 = sqrt((point1_x - point3_x) * (point1_x - point3_x) + (point1_y - point3_y) * (point1_y - point3_y));
+			return side * 3;
+		}
 
-			return (s12 + s23 + s13);
+		EquilateralTriangle(double side, SHAPE_TAKE_PARAMETERS) : Triangle(SHAPE_GIVE_PARAMETERS)
+		{
+			set_side(side);
 		}
 		void draw() const override
 		{
-			
-			HWND hwnd = GetConsoleWindow();
-			HDC hdc = GetDC(hwnd); 
-			
-			HPEN hPen = CreatePen(PS_SOLID, line_width, color); 
-			HBRUSH hBrush = CreateSolidBrush(color);
+			const POINT vertices[] =
+			{
+				{ start_x, start_y + get_height() },
+				{ start_x + side, start_y + get_height() },
+				{ start_x + side / 2, start_y }
+			};
 
-			SelectObject(hdc, hPen);
-			SelectObject(hdc, hBrush);
-
-			DeleteObject(hPen);
-			DeleteObject(hBrush);
-
-			ReleaseDC(hwnd, hdc);
-		}
-		Triangle(int point1_x, int point1_y, int point2_x, int point2_y, int point3_x, int point3_y, SHAPE_TAKE_PARAMETERS) :Shape(SHAPE_GIVE_PARAMETERS)
-		{
-			set_point1_x(point1_x);
-			set_point1_y(point1_y);
-			set_point2_x(point2_x);
-			set_point2_y(point2_y);
-			set_point3_x(point3_x);
-			set_point3_y(point3_y);
+			::Polygon(hdc, vertices, 3);
 		}
 		void info() const override
 		{
 			cout << typeid(*this).name() << endl;
-			cout << "Point1: " << get_point1_x() << " " << get_point1_y() << endl;
-			cout << "Point2: " << get_point2_x() << " " << get_point2_y() << endl;
-			cout << "Point3: " << get_point3_x() << " " << get_point3_y() << endl;
+			cout << "сторона: " << get_side() << endl;
 			Shape::info();
 		}
+
 	};
+
 }
+
 
 void main()
 {
@@ -358,6 +281,15 @@ void main()
 	rectangle.info();
 	Geometry::Circle circle(75, 500, 500, 3, Geometry::Color::Yellow);
 	circle.info();
-	Geometry::Triangle triangle(700, 500, 730, 500, 720, 520, 0, 0, 3, Geometry::Color::Violet);
+	Geometry::EquilateralTriangle triangle(80, 500, 350, 1, Geometry::Color::Violet);
 	triangle.info();
+
+	while (true)
+	{
+		square.draw();
+		rectangle.draw();
+		circle.draw();
+		triangle.draw();
+
+	}
 }
